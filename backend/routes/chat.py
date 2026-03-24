@@ -9,6 +9,7 @@ router = APIRouter()
 
 class ChatRequest(BaseModel):
     question: str
+    history: list[dict] = []
 
 class ChatResponse(BaseModel):
     answer: str
@@ -31,7 +32,7 @@ def chat_endpoint(request: ChatRequest):
         
     # Phase 2: Translate to SQL
     try:
-        sql = generate_sql(question)
+        sql = generate_sql(question, history=request.history)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate SQL: {str(e)}")
         

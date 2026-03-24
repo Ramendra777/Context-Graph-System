@@ -12,9 +12,18 @@ if api_key:
 # We use the highly efficient flash model
 model = genai.GenerativeModel('gemini-2.5-flash')
 
-def generate_sql(question: str) -> str:
+def generate_sql(question: str, history: list = None) -> str:
     """Generates a SQL query from natural language."""
-    prompt = f"{SQL_SYSTEM_PROMPT}\n\nUser Question: {question}\nSQL Query:"
+    history_context = ""
+    if history:
+        history_context = "Conversation History:\n"
+        for msg in history[-10:]:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            history_context += f"{role.capitalize()}: {content}\n"
+        history_context += "\n"
+        
+    prompt = f"{SQL_SYSTEM_PROMPT}\n\n{history_context}User Question: {question}\nSQL Query:"
     response = model.generate_content(prompt)
     
     sql = response.text.strip()
