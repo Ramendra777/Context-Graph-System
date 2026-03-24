@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routes import graph
+from backend.routes import graph, chat
 
 app = FastAPI(title="Order-to-Cash Graph API")
 
@@ -13,6 +13,7 @@ app.add_middleware(
 )
 
 app.include_router(graph.router, prefix="/api/graph", tags=["Graph"])
+app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
 
 @app.get("/")
 def read_root():
