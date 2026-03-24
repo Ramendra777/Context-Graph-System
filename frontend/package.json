@@ -4,11 +4,18 @@
   "description": "Order to cash graph visualization and chat interface",
   "main": "src/main.jsx",
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-flow-renderer": "^10.3.17"
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-flow-renderer": "^10.3.17",
+    "reactflow": "^11.11.4"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.1"
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.0.2"
   }
 }
