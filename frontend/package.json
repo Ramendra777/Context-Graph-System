@@ -1,0 +1,14 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Order to cash graph visualization and chat interface",
+  "main": "src/main.jsx",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-flow-renderer": "^10.3.17"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}
