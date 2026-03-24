@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function ChatPanel() {
+export default function ChatPanel({ setHighlightedNodes }) {
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Hello! How can I help you explore the Order-to-Cash process today?' }
   ]);
@@ -41,6 +41,13 @@ export default function ChatPanel() {
       const data = await response.json();
       
       setMessages([...newHistory, { role: 'assistant', content: data.answer }]);
+      
+      if (data.data && Array.isArray(data.data) && setHighlightedNodes) {
+        const potentialIds = data.data.map(row => 
+            row.sales_order_id || row.delivery_id || row.billing_document_id || row.accounting_document_id || row.customer_id
+        ).filter(Boolean);
+        setHighlightedNodes(potentialIds);
+      }
     } catch (err) {
       setMessages([...newHistory, { role: 'assistant', content: 'Sorry, I encountered an error connecting to the LLM backend.', isError: true }]);
     } finally {

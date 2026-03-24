@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactFlow, { Background, Controls, MiniMap } from 'reactflow';
+import ReactFlow, { Background, Controls, MiniMap, useReactFlow } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { CustomerNode, SalesOrderNode, DeliveryNode, BillingNode, PaymentNode } from './CustomNodes';
 
@@ -12,10 +12,27 @@ const nodeTypes = {
   custom: SalesOrderNode 
 };
 
-export default function GraphView() {
+export default function GraphView({ highlightedNodes }) {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { setCenter } = useReactFlow();
+
+  useEffect(() => {
+    if (highlightedNodes && highlightedNodes.length > 0 && nodes.length > 0) {
+      const targetId = highlightedNodes[0];
+      const targetNode = nodes.find(n => n.id === String(targetId));
+      if (targetNode) {
+        setCenter(targetNode.position.x + 100, targetNode.position.y + 50, { zoom: 1.5, duration: 1200 });
+        
+        // Optionally map over nodes to highlight the active one and dim the others
+        setNodes(nds => nds.map(n => ({
+          ...n,
+          style: { ...n.style, opacity: n.id === targetNode.id ? 1 : 0.4 }
+        })));
+      }
+    }
+  }, [highlightedNodes, nodes, setCenter]);
 
   useEffect(() => {
     fetch('/api/graph')

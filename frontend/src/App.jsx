@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ReactFlowProvider } from 'reactflow';
 import GraphView from './components/GraphView';
 import ChatPanel from './components/ChatPanel';
 
 function App() {
+  const [highlightedNodes, setHighlightedNodes] = useState([]);
+
   return (
     <div className="flex w-screen h-screen">
       {/* Left Pane: Graph Viewer (70%) */}
@@ -14,13 +17,15 @@ function App() {
           <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider font-semibold">Interactive Data Exploration</p>
         </div>
         <div className="h-full w-full border-r border-slate-800">
-          <GraphView />
+          <ReactFlowProvider>
+            <GraphView highlightedNodes={highlightedNodes} />
+          </ReactFlowProvider>
         </div>
       </div>
 
       {/* Right Pane: Conversational Interface (30%) */}
       <div className="w-[30%] h-full glass-panel border-l-0 rounded-l-2xl z-20 flex flex-col shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.5)] overflow-hidden">
-        <ChatPanel />
+        <ChatPanel setHighlightedNodes={setHighlightedNodes} />
       </div>
     </div>
   );
