@@ -1,7 +1,5 @@
 # AI Coding Sessions / Prompt Logs
 
-This document summarizes the AI-assisted development of the **Order-to-Cash Context Graph System**. It provides insight into the prompting strategy, iterative debugging, and architecture collaboration between the human developer and the AI agent (**Antigravity**).
-
 ## 1. Overview of AI Tool Usage
 The project was built using **Antigravity**, an agentic AI coding assistant. The workflow followed a **Phase-based Implementation Strategy**:
 - **Planning**: AI generated implementation plans (Step-by-Step) before any code was written.
