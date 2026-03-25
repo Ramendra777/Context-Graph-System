@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 import GraphView from './components/GraphView';
 import ChatPanel from './components/ChatPanel';
+import NodeDetailPanel from './components/NodeDetailPanel';
 
 function App() {
   const [highlightedNodes, setHighlightedNodes] = useState([]);
+  const [selectedNode, setSelectedNode] = useState(null);
 
   return (
     <div className="flex w-screen h-screen">
@@ -18,9 +20,10 @@ function App() {
         </div>
         <div className="h-full w-full border-r border-slate-800">
           <ReactFlowProvider>
-            <GraphView highlightedNodes={highlightedNodes} />
+            <GraphView highlightedNodes={highlightedNodes} onNodeClick={(node) => setSelectedNode(node)} />
           </ReactFlowProvider>
         </div>
+        <NodeDetailPanel node={selectedNode} onClose={() => setSelectedNode(null)} />
       </div>
 
       {/* Right Pane: Conversational Interface (30%) */}

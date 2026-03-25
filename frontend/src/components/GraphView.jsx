@@ -12,7 +12,7 @@ const nodeTypes = {
   custom: SalesOrderNode 
 };
 
-export default function GraphView({ highlightedNodes }) {
+export default function GraphView({ highlightedNodes, onNodeClick }) {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +25,6 @@ export default function GraphView({ highlightedNodes }) {
       if (targetNode) {
         setCenter(targetNode.position.x + 100, targetNode.position.y + 50, { zoom: 1.5, duration: 1200 });
         
-        // Optionally map over nodes to highlight the active one and dim the others
         setNodes(nds => nds.map(n => ({
           ...n,
           style: { ...n.style, opacity: n.id === targetNode.id ? 1 : 0.4 }
@@ -52,6 +51,10 @@ export default function GraphView({ highlightedNodes }) {
       });
   }, []);
 
+  const handleNodeClick = (event, node) => {
+    if (onNodeClick) onNodeClick(node);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -69,6 +72,7 @@ export default function GraphView({ highlightedNodes }) {
         nodes={nodes} 
         edges={edges} 
         nodeTypes={nodeTypes}
+        onNodeClick={handleNodeClick}
         fitView
         proOptions={{ hideAttribution: true }}
         defaultEdgeOptions={{ 
