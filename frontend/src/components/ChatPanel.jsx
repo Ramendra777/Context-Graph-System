@@ -3,121 +3,144 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ChatPanel({ setHighlightedNodes }) {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! How can I help you explore the Order-to-Cash process today?' }
+    { role: 'assistant', content: 'Hi! I can help you analyze the **Order to Cash** process.' }
   ]);
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const scrollRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isLoading]);
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
 
-  const handleSend = async (e) => {
-    if (e) e.preventDefault();
-    if (!input.trim() || isLoading) return;
-
-    const userMessage = { role: 'user', content: input.trim() };
-    const newHistory = [...messages, userMessage];
-    setMessages(newHistory);
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
+    const question = input.trim();
     setInput('');
-    setIsLoading(true);
+    setMessages(prev => [...prev, { role: 'user', content: question }]);
+    setLoading(true);
 
     try {
-      const apiHistory = newHistory.slice(0, -1).map(m => ({ role: m.role, content: m.content }));
-      
-      const response = await fetch('/api/chat/', {
+      const history = messages.map(m => ({ role: m.role, content: m.content }));
+      const res = await fetch('/api/chat/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: userMessage.content,
-          history: apiHistory 
-        })
+        body: JSON.stringify({ question, history }),
       });
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: 'assistant', content: data.answer || data.detail }]);
 
-      if (!response.ok) throw new Error('API Error');
-      const data = await response.json();
-      
-      setMessages([...newHistory, { role: 'assistant', content: data.answer }]);
-      
-      if (data.data && Array.isArray(data.data) && setHighlightedNodes) {
-        const potentialIds = data.data.map(row => 
-            row.sales_order_id || row.delivery_id || row.billing_document_id || row.accounting_document_id || row.customer_id
-        ).filter(Boolean);
-        setHighlightedNodes(potentialIds);
+      // Extract IDs for graph highlighting
+      const idMatches = data.answer?.match(/\b\d{6,}\b/g);
+      if (idMatches && setHighlightedNodes) {
+        setHighlightedNodes(idMatches.slice(0, 3));
       }
     } catch (err) {
-      setMessages([...newHistory, { role: 'assistant', content: 'Sorry, I encountered an error connecting to the LLM backend.', isError: true }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }]);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  // Simple markdown bold rendering
+  const renderText = (text) => {
+    return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  };
+
   return (
-    <div className="flex flex-col h-full w-full">
-      <div className="p-6 border-b border-slate-700/50">
-        <h2 className="font-semibold text-lg text-slate-100 flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_2px_rgba(52,211,153,0.5)]"></div>
-          AI Assistant
-        </h2>
-        <p className="text-[12px] text-slate-400 mt-1 uppercase tracking-wider font-semibold">Generative Database Querying</p>
+    <>
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center">
+            <svg className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-gray-800">Chat with Graph</h2>
+            <p className="text-[11px] text-gray-400">Order to Cash</p>
+          </div>
+        </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 p-6 overflow-y-auto flex flex-col gap-4 scroll-smooth">
+      {/* Message Area */}
+      <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3">
         <AnimatePresence>
-          {messages.map((msg, idx) => (
-            <motion.div 
-              key={idx} 
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              className={`max-w-[85%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
-                msg.role === 'user' 
-                  ? 'bg-indigo-600 text-white self-end rounded-br-sm shadow-indigo-900/50 shadow-lg' 
-                  : msg.isError
-                    ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20 self-start rounded-tl-sm'
-                    : 'bg-slate-700/50 backdrop-blur-sm text-slate-200 border border-slate-600/30 self-start rounded-tl-sm'
-              }`}
+          {messages.map((msg, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {msg.content}
+              {msg.role === 'assistant' && (
+                <div className="w-7 h-7 rounded-full bg-indigo-50 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                  <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+              )}
+              <div
+                className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
+                  msg.role === 'user'
+                    ? 'bg-indigo-600 text-white rounded-br-md'
+                    : 'bg-gray-100 text-gray-700 rounded-bl-md'
+                }`}
+                dangerouslySetInnerHTML={{ __html: renderText(msg.content) }}
+              />
             </motion.div>
           ))}
-          {isLoading && (
-            <motion.div 
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-slate-700/50 backdrop-blur-sm self-start px-4 py-3.5 rounded-2xl rounded-tl-sm text-sm border border-slate-600/30 w-16 flex justify-center items-center gap-1.5"
-            >
-               <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-               <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-               <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
-            </motion.div>
-          )}
         </AnimatePresence>
+        
+        {loading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center gap-2 px-3 py-2"
+          >
+            <div className="w-7 h-7 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
+              <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div className="flex gap-1">
+              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
+              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
+              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
+            </div>
+          </motion.div>
+        )}
+        <div ref={bottomRef} />
       </div>
 
-      <div className="p-5 bg-slate-800/80 border-t border-slate-700/50">
-        <form onSubmit={handleSend} className="relative flex items-center group">
-          <input 
-            type="text" 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={isLoading}
-            placeholder="Ask about orders, delivery..." 
-            className="w-full bg-slate-900 border border-slate-600 rounded-full px-5 py-3.5 pl-5 pr-12 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition-all text-slate-200 placeholder-slate-500 shadow-inner"
-          />
-          <button 
-            type="submit"
-            disabled={!input.trim() || isLoading}
-            className="absolute right-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white rounded-full p-2.5 transition-colors shadow-lg shadow-indigo-900/50 group-focus-within:bg-indigo-500"
+      {/* Input Area */}
+      <div className="px-4 py-3 border-t border-gray-100">
+        <div className="flex items-center gap-2">
+          <div className="flex-1 relative">
+            <div className="flex items-center gap-1 text-[10px] text-green-600 font-medium mb-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+              AI is awaiting instructions
+            </div>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Analyze anything"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition-all"
+            />
+          </div>
+          <button
+            onClick={sendMessage}
+            disabled={loading || !input.trim()}
+            className="px-4 py-2.5 mt-5 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            Send
           </button>
-        </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
