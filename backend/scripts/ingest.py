@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from backend.database import engine, Base, SessionLocal
 from backend.models import Customer, SalesOrder, Delivery, BillingDocument, Payment
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(REPO_ROOT, "sap-o2c-data")
 
 def parse_date(date_str):
