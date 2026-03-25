@@ -2,7 +2,7 @@ services:
   # 1. Backend Web Service
   - type: web
     name: o2c-backend
-    runtime: python
+    env: python
     buildCommand: pip install -r requirements.txt && python backend/scripts/ingest.py
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
@@ -11,11 +11,12 @@ services:
       - key: PYTHONPATH
         value: .
 
-static_sites:
-  # 2. Frontend Static Site
-  - name: o2c-frontend
+  # 2. Frontend (Static Site)
+  - type: web
+    name: o2c-frontend
+    env: static
     buildCommand: cd frontend && npm install && npm run build
-    publishDir: frontend/dist
+    staticPublishDir: frontend/dist
     envVars:
       - key: VITE_API_URL
         value: https://o2c-backend.onrender.com
