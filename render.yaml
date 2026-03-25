@@ -1,8 +1,9 @@
 services:
+  # 1. Backend Web Service
   - type: web
     name: o2c-backend
     runtime: python
-    buildCommand: pip install -r requirements.txt && export PYTHONPATH=. && python backend/scripts/ingest.py
+    buildCommand: pip install -r requirements.txt && python backend/scripts/ingest.py
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: GEMINI_API_KEY
@@ -10,7 +11,8 @@ services:
       - key: PYTHONPATH
         value: .
 
-staticSites:
+static_sites:
+  # 2. Frontend Static Site
   - name: o2c-frontend
     buildCommand: cd frontend && npm install && npm run build
     publishDir: frontend/dist
