@@ -9,16 +9,18 @@ function App() {
   const [selectedNode, setSelectedNode] = useState(null);
 
   return (
-    <div className="flex w-screen h-screen">
+    <div className="flex w-screen h-screen bg-gray-50">
       {/* Left Pane: Graph Viewer (70%) */}
-      <div className="w-[70%] h-full bg-slate-900 relative">
-        <div className="absolute top-6 left-6 z-10 glass-panel px-6 py-4 rounded-xl shadow-2xl">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
-            Order-To-Cash Context Graph
-          </h1>
-          <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider font-semibold">Interactive Data Exploration</p>
+      <div className="w-[70%] h-full bg-white relative">
+        <div className="absolute top-5 left-5 z-10 bg-white/90 backdrop-blur-sm px-5 py-3 rounded-xl shadow-md border border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
+            <h1 className="text-base font-bold text-gray-800">
+              Mapping / <span className="text-indigo-600">Order to Cash</span>
+            </h1>
+          </div>
         </div>
-        <div className="h-full w-full border-r border-slate-800">
+        <div className="h-full w-full border-r border-gray-200">
           <ReactFlowProvider>
             <GraphView highlightedNodes={highlightedNodes} onNodeClick={(node) => setSelectedNode(node)} />
           </ReactFlowProvider>
@@ -27,7 +29,7 @@ function App() {
       </div>
 
       {/* Right Pane: Conversational Interface (30%) */}
-      <div className="w-[30%] h-full glass-panel border-l-0 rounded-l-2xl z-20 flex flex-col shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.5)] overflow-hidden">
+      <div className="w-[30%] h-full bg-white border-l border-gray-200 flex flex-col overflow-hidden">
         <ChatPanel setHighlightedNodes={setHighlightedNodes} />
       </div>
     </div>
