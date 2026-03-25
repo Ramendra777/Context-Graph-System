@@ -24,10 +24,9 @@ export default function GraphView({ highlightedNodes, onNodeClick }) {
       const targetNode = nodes.find(n => n.id === String(targetId));
       if (targetNode) {
         setCenter(targetNode.position.x + 100, targetNode.position.y + 50, { zoom: 1.5, duration: 1200 });
-        
         setNodes(nds => nds.map(n => ({
           ...n,
-          style: { ...n.style, opacity: n.id === targetNode.id ? 1 : 0.4 }
+          style: { ...n.style, opacity: n.id === targetNode.id ? 1 : 0.3 }
         })));
       }
     }
@@ -57,10 +56,10 @@ export default function GraphView({ highlightedNodes, onNodeClick }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center w-full h-full">
-        <div className="animate-pulse text-indigo-400 flex flex-col items-center">
-            <svg className="w-12 h-12 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-            <span className="tracking-widest font-semibold uppercase text-xs">Loading Massive Graph Network...</span>
+      <div className="flex items-center justify-center w-full h-full bg-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Loading Graph Network...</span>
         </div>
       </div>
     );
@@ -76,23 +75,24 @@ export default function GraphView({ highlightedNodes, onNodeClick }) {
         fitView
         proOptions={{ hideAttribution: true }}
         defaultEdgeOptions={{ 
-            style: { stroke: '#475569', strokeWidth: 2 },
-            animated: true
+            style: { stroke: '#93c5fd', strokeWidth: 1.5 },
+            animated: true,
+            type: 'smoothstep'
         }}
       >
-        <Background color="#1e293b" gap={20} size={1} />
-        <Controls className="!bg-slate-800 !border-slate-700 !fill-slate-200 overflow-hidden rounded-xl shadow-xl border m-4" />
+        <Background color="#e5e7eb" gap={20} size={1} />
+        <Controls className="!bg-white !border-gray-200 !fill-gray-500 overflow-hidden rounded-lg shadow-md border m-4" />
         <MiniMap 
           nodeColor={(n) => {
-            if (n.type === 'Customer') return '#7c3aed';
-            if (n.type === 'SalesOrder') return '#2563eb';
-            if (n.type === 'Delivery') return '#059669';
+            if (n.type === 'Customer') return '#8b5cf6';
+            if (n.type === 'SalesOrder') return '#3b82f6';
+            if (n.type === 'Delivery') return '#10b981';
             if (n.type === 'BillingDocument') return '#f97316';
-            if (n.type === 'Payment') return '#e11d48';
-            return '#4f46e5';
+            if (n.type === 'Payment') return '#f43f5e';
+            return '#6366f1';
           }} 
-          maskColor="rgba(15, 23, 42, 0.8)" 
-          className="!bg-slate-900 !border-slate-700 rounded-xl overflow-hidden shadow-2xl border"
+          maskColor="rgba(255, 255, 255, 0.85)" 
+          className="!bg-white !border-gray-200 rounded-lg overflow-hidden shadow-md border"
           position="bottom-left"
         />
       </ReactFlow>
