@@ -33,7 +33,8 @@ export default function GraphView({ highlightedNodes, onNodeClick }) {
   }, [highlightedNodes, nodes, setCenter]);
 
   useEffect(() => {
-    fetch('/api/graph')
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    fetch(`${apiUrl}/api/graph`)
       .then(res => res.json())
       .then(data => {
         const mappedNodes = data.nodes.map(n => ({
