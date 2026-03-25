@@ -1,5 +1,4 @@
 services:
-  # 1. Backend Web Service
   - type: web
     name: o2c-backend
     runtime: python
@@ -7,14 +6,14 @@ services:
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: GEMINI_API_KEY
-        sync: false # Set this in the Render Dashboard
+        sync: false
       - key: PYTHONPATH
         value: .
 
-  # 2. Frontend Static Site
+staticSites:
   - name: o2c-frontend
     buildCommand: cd frontend && npm install && npm run build
     publishDir: frontend/dist
     envVars:
       - key: VITE_API_URL
-        value: https://o2c-backend.onrender.com # Update this if your backend name differs
+        value: https://o2c-backend.onrender.com
