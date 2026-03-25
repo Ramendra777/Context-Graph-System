@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from typing import Optional, Any
 from backend.llm.guardrails import is_query_relevant
 from backend.llm.service import generate_sql, synthesize_answer
 from backend.llm.executor import execute_read_only_sql
@@ -13,8 +14,8 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
-    sql_query: str = None
-    data: list = None
+    sql_query: Optional[str] = None
+    data: Optional[list[Any]] = None
 
 @router.post("/", response_model=ChatResponse)
 def chat_endpoint(request: ChatRequest):
