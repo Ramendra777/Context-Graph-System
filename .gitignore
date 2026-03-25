@@ -3,4 +3,3 @@ backend/database.db
 .env
 frontend/node_modules/
 frontend/dist/
-/Users/ramendrasingh001/context graph system/order-to-cash-graph/.env
