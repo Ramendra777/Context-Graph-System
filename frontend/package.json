@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "version": "1.0.0",
+  "type": "module",
   "description": "Order to cash graph visualization and chat interface",
   "main": "src/main.jsx",
   "dependencies": {
