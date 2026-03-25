@@ -12,11 +12,10 @@ services:
         value: .
 
   # 2. Frontend Static Site
-  - type: web
+  - type: static
     name: o2c-frontend
-    runtime: static
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishDir: frontend/dist
+    publishDir: frontend/dist
     envVars:
       - key: VITE_API_URL
         value: https://o2c-backend.onrender.com # Update this if your backend name differs
